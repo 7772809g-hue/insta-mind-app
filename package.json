@@ -1,8 +1,9 @@
 {
   "name": "insta-mind-app",
-  "version": "0.1.0",
-  "description": "AI-powered Instagram content manager", 
+  "version": "1.0.0",
+  "description": "AI-powered Instagram content manager",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,7 +12,7 @@
   },
   "dependencies": {
     "next": "13.5.6",
-    "react": "18.2.0", 
+    "react": "18.2.0",
     "react-dom": "18.2.0",
     "openai": "4.20.1"
   },
@@ -20,6 +21,6 @@
     "eslint-config-next": "13.5.6"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "18.x"
   }
 }
