@@ -17,21 +17,26 @@ export async function POST(req) {
       model: DEFAULT_MODEL,
       input: `
 Ты — эксперт по Instagram-контенту и Reels.
-На основе этого описания пользователя сгенерируй 5 идей контента в формате списка:
+На основе описания пользователя сгенерируй 5 идей контента в виде нумерованного списка.
 
+Описание пользователя:
 "${prompt}"
-`,
+      `,
     });
 
     const text =
-      response.output?.[0]?.content?.[0]?.text ??
-      "No response from model";
+      response.output?.[0]?.content?.[0]?.text ?? "No response from model";
 
     return NextResponse.json({ result: text });
   } catch (error) {
     console.error("API /api/generate error:", error);
+
+    // ВРЕМЕННО: отдадим текст ошибки на фронт, чтобы было видно, что именно ломается
     return NextResponse.json(
-      { error: "Server error", details: error.message },
+      {
+        error: "Server error",
+        message: error.message,
+      },
       { status: 500 }
     );
   }
