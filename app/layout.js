@@ -1,12 +1,15 @@
+// app/layout.js
 export const metadata = {
   title: "Insta-Mind App",
-  description: "Your AI Instagram assistant",
+  description: "AI assistant for Instagram Reels and content ideas"
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body style={{ margin: 0, padding: 0, backgroundColor: "#fafafa" }}>
+        {children}
+      </body>
     </html>
   );
 }
