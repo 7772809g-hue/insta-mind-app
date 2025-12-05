@@ -30,7 +30,7 @@ export async function POST(req) {
         {
           role: "user",
           content:
-            `User description:\n${prompt}\n\nGenerate 5 specific, actionable Reels ideas as a numbered list.`
+            `User description:\n${prompt}\n\nGenerate 5 specific, actionable Instagram Reels ideas as a numbered list.`
         }
       ],
       temperature: 0.7,
@@ -62,3 +62,4 @@ export async function POST(req) {
     );
   }
 }
+
