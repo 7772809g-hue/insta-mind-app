@@ -1,48 +1,64 @@
 // app/api/generate/route.js
-import { NextResponse } from "next/server";
-import { client, DEFAULT_MODEL } from "../../../lib/openai";
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
 export async function POST(req) {
   try {
     const { prompt } = await req.json();
 
     if (!prompt || typeof prompt !== "string") {
-      return NextResponse.json(
-        { error: "Prompt is required" },
-        { status: 400 }
+      return new Response(
+        JSON.stringify({ error: "Prompt is required" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" }
+        }
       );
     }
 
-    // Using the latest Responses API
-    const response = await client.responses.create({
-      model: DEFAULT_MODEL,
-      instructions:
-        "You are an Instagram content strategist. Generate concise, high-performing content ideas for Reels and posts for a US-based audience.",
-      input: [
+    const completion = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an Instagram content strategist. Generate concise, high-performing content ideas for a US-based audience."
+        },
         {
           role: "user",
-          content: [
-            {
-              type: "input_text",
-              text: `User description:\n${prompt}\n\nGenerate 5 specific, actionable content ideas as a numbered list.`
-            }
-          ]
+          content:
+            `User description:\n${prompt}\n\nGenerate 5 specific, actionable Reels ideas as a numbered list.`
         }
       ],
-      max_output_tokens: 600
+      temperature: 0.7,
+      max_tokens: 600
     });
 
-    const text = response.output_text ?? "No response from model";
+    const text =
+      completion.choices?.[0]?.message?.content || "No response from model";
 
-    return NextResponse.json({ result: text });
+    return new Response(
+      JSON.stringify({ result: text }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      }
+    );
   } catch (error) {
     console.error("API /api/generate error:", error);
-    return NextResponse.json(
-      {
+
+    return new Response(
+      JSON.stringify({
         error: "Server error",
         message: error?.message ?? String(error)
-      },
-      { status: 500 }
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      }
     );
   }
 }
