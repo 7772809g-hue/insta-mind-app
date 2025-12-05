@@ -1,6 +1,6 @@
 // app/api/generate/route.js
 import { NextResponse } from "next/server";
-import { openai, DEFAULT_MODEL } from "../../../lib/openai";
+import { client, DEFAULT_MODEL } from "../../../lib/openai";
 
 export async function POST(req) {
   try {
@@ -13,29 +13,34 @@ export async function POST(req) {
       );
     }
 
-    const response = await openai.responses.create({
+    // Using the latest Responses API
+    const response = await client.responses.create({
       model: DEFAULT_MODEL,
-      input: `
-Ты — эксперт по Instagram-контенту и Reels.
-На основе описания пользователя сгенерируй 5 идей контента в виде нумерованного списка.
-
-Описание пользователя:
-"${prompt}"
-      `,
+      instructions:
+        "You are an Instagram content strategist. Generate concise, high-performing content ideas for Reels and posts for a US-based audience.",
+      input: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: `User description:\n${prompt}\n\nGenerate 5 specific, actionable content ideas as a numbered list.`
+            }
+          ]
+        }
+      ],
+      max_output_tokens: 600
     });
 
-    const text =
-      response.output?.[0]?.content?.[0]?.text ?? "No response from model";
+    const text = response.output_text ?? "No response from model";
 
     return NextResponse.json({ result: text });
   } catch (error) {
     console.error("API /api/generate error:", error);
-
-    // ВРЕМЕННО: отдадим текст ошибки на фронт, чтобы было видно, что именно ломается
     return NextResponse.json(
       {
         error: "Server error",
-        message: error.message,
+        message: error?.message ?? String(error)
       },
       { status: 500 }
     );
