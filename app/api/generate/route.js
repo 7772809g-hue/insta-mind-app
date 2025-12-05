@@ -4,15 +4,15 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(req) {
+export async function POST(request) {
   try {
-    const { prompt } = await req.json();
+    const { prompt } = await request.json();
 
     if (!prompt || typeof prompt !== "string") {
-      return new Response(JSON.stringify({ error: "Prompt is required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return Response.json(
+        { error: "Prompt is required" },
+        { status: 400 }
+      );
     }
 
     const completion = await client.chat.completions.create({
@@ -20,26 +20,27 @@ export async function POST(req) {
       messages: [
         {
           role: "system",
-          content: "You are an Instagram strategist. Generate short, actionable Reels ideas for a US audience.",
+          content:
+            "You are an Instagram strategist. Generate short, actionable Reels ideas for a US audience.",
         },
         {
           role: "user",
           content: prompt,
         },
       ],
+      max_tokens: 400,
     });
 
-    const text = completion.choices[0]?.message?.content || "No response";
+    const text =
+      completion.choices?.[0]?.message?.content?.trim() || "No response from model.";
 
-    return new Response(JSON.stringify({ result: text }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-
+    // 🔴 ВАЖНО: всегда отправляем поле result
+    return Response.json({ result: text }, { status: 200 });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("API error:", error);
+    return Response.json(
+      { error: "Server error" },
+      { status: 500 }
+    );
   }
 }
